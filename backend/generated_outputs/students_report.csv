@@ -1,0 +1,9 @@
+student_id,name,program,attendance_percentage,assignment_1,assignment_2,assignment_3,quiz_1,quiz_2,midterm_score,final_exam_score,assignment_avg,quiz_avg,final_score,category,is_at_risk
+S001,Aarav Sharma,B.Tech,92,85,90,88,80,85,78,92,87.67,82.5,86.0,Excellent,False
+S002,Diya Verma,B.Tech,58,70,65,60,55,60,62,58,65.0,57.5,60.8,Needs Improvement,True
+S003,Kabir Singh,B.Sc,75,60,72,68,70,65,74,70,66.67,67.5,69.3,Needs Improvement,False
+S004,Meera Nair,B.Sc,88,95,92,94,90,93,89,91,93.67,91.5,91.5,Excellent,False
+S005,Rohan Gupta,B.Tech,61,50,55,52,40,45,58,60,52.33,42.5,53.8,Needs Improvement,True
+S006,Ananya Iyer,B.Sc,55,88,85,90,75,70,80,82,87.67,72.5,81.4,Good,True
+S007,Vivaan Joshi,B.Tech,80,68,70,72,60,65,70,74,70.0,62.5,69.7,Needs Improvement,False
+S008,Ishita Kapoor,B.Sc,90,78,82,80,88,84,76,79,80.0,86.0,80.1,Good,False

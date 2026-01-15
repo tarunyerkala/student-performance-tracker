@@ -1,0 +1,12 @@
+{
+  "total_students": 8,
+  "category_counts": {
+    "Needs Improvement": 4,
+    "Excellent": 2,
+    "Good": 2
+  },
+  "at_risk_count": 3,
+  "top_10_percent_students": [
+    "S004"
+  ]
+}
