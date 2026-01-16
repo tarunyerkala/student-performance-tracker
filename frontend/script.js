@@ -48,8 +48,8 @@ async function loadData() {
         await loadSummary();
 
         // Update display
-        
-        
+
+
     } catch (error) {
         showError('Failed to load data. Make sure backend is running on port 8000.');
         console.error('Error loading data:', error);
@@ -61,22 +61,22 @@ async function loadData() {
 async function loadSummary() {
     try {
         console.log("Fetching summary from:", `${API_BASE_URL}/students/performance-summary`);
-        
+
         const response = await fetch(`${API_BASE_URL}/students/performance-summary`);
-        
+
         console.log("Response status:", response.status, response.statusText);
-        
+
         if (!response.ok) {
             const errorText = await response.text();
             console.error("Error response:", errorText);
             throw new Error(`Failed to fetch summary: ${response.status} ${response.statusText}`);
         }
-        
+
         const summary = await response.json();
         console.log("Summary data received:", summary);
-        
+
         renderSummary(summary);
-        
+
     } catch (error) {
         console.error('Error loading summary:', error);
         // Show error on page
@@ -129,7 +129,7 @@ function renderSummary(summary) {
 
 // Update student list
 function updateStudentList() {
-    console.log('hey',filteredStudents,studentListEl)
+    console.log('hey', filteredStudents, studentListEl)
     if (filteredStudents.length === 0) {
         studentListEl.innerHTML = `
             <div class="empty-state">
@@ -211,19 +211,19 @@ async function handleAddStudent(e) {
         student_id: document.getElementById('studentId').value.trim(),
         name: document.getElementById('studentName').value.trim(),
         program: document.getElementById('program').value.trim(),
-        attendance_percentage: parseFloat(document.getElementById('attendance').value),
-        assignment_1: parseFloat(document.getElementById('assignment1').value),
-        assignment_2: parseFloat(document.getElementById('assignment2').value),
-        assignment_3: parseFloat(document.getElementById('assignment3').value),
-        quiz_1: parseFloat(document.getElementById('quiz1').value),
-        quiz_2: parseFloat(document.getElementById('quiz2').value),
-        midterm_score: parseFloat(document.getElementById('midterm').value),
-        final_exam_score: parseFloat(document.getElementById('finalExam').value)
+        attendance_percentage: Number(document.getElementById('attendance').value),
+        assignment_1: Number(document.getElementById('assignment1').value),
+        assignment_2: Number(document.getElementById('assignment2').value),
+        assignment_3: Number(document.getElementById('assignment3').value),
+        quiz_1: Number(document.getElementById('quiz1').value),
+        quiz_2: Number(document.getElementById('quiz2').value),
+        midterm_score: Number(document.getElementById('midterm').value),
+        final_exam_score: Number(document.getElementById('finalExam').value)
     };
 
-    // Validate all fields are filled
+    // Validate fields
     for (const [key, value] of Object.entries(studentData)) {
-        if (value === undefined || (typeof value === 'number' && isNaN(value))) {
+        if (value === "" || value === null || isNaN(value) && key !== "name" && key !== "program" && key !== "student_id") {
             showFormMessage('Please fill in all fields correctly', 'error');
             return;
         }
@@ -233,7 +233,7 @@ async function handleAddStudent(e) {
         const response = await fetch(`${API_BASE_URL}/students`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(studentData)
         });
@@ -244,21 +244,20 @@ async function handleAddStudent(e) {
             showFormMessage('Student added successfully!', 'success');
             addStudentForm.reset();
 
-            // Reload data to show new student
             setTimeout(() => {
-                loadData();
-                resetFilters();
+                loadData();     // reload table
+                resetFilters(); // reset filters
             }, 1000);
-
         } else {
             showFormMessage(result.detail || 'Failed to add student', 'error');
         }
 
     } catch (error) {
-        showFormMessage('Failed to connect to server', 'error');
         console.error('Error adding student:', error);
+        showFormMessage('Failed to connect to server', 'error');
     }
 }
+
 
 // Show form message
 function showFormMessage(message, type) {
