@@ -19,7 +19,7 @@ let filteredStudents = [];
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
-    
+
     // Event Listeners
     applyFiltersBtn.addEventListener('click', applyFilters);
     resetFiltersBtn.addEventListener('click', resetFilters);
@@ -30,21 +30,25 @@ document.addEventListener('DOMContentLoaded', () => {
 // Load all data
 async function loadData() {
     try {
-        showLoading();
-        
+        // showLoading();
+
         // Load students
         const response = await fetch(`${API_BASE_URL}/students`);
         if (!response.ok) throw new Error('Failed to fetch students');
-        
+
         allStudents = await response.json();
         filteredStudents = [...allStudents];
-        
-        // Load summary
-        await loadSummary();
-        
-        // Update display
+        console.log(filteredStudents)
+
         updateStudentList();
         updateTotalCount();
+
+
+        // Load summary
+        await loadSummary();
+
+        // Update display
+        
         
     } catch (error) {
         showError('Failed to load data. Make sure backend is running on port 8000.');
@@ -53,24 +57,46 @@ async function loadData() {
 }
 
 // Load performance summary
+// Load performance summary
 async function loadSummary() {
     try {
+        console.log("Fetching summary from:", `${API_BASE_URL}/students/performance-summary`);
+        
         const response = await fetch(`${API_BASE_URL}/students/performance-summary`);
-        if (!response.ok) throw new Error('Failed to fetch summary');
+        
+        console.log("Response status:", response.status, response.statusText);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Error response:", errorText);
+            throw new Error(`Failed to fetch summary: ${response.status} ${response.statusText}`);
+        }
         
         const summary = await response.json();
+        console.log("Summary data received:", summary);
+        
         renderSummary(summary);
         
     } catch (error) {
         console.error('Error loading summary:', error);
+        // Show error on page
+        summaryEl.innerHTML = `
+            <div class="error-state">
+                <p>Failed to load summary: ${error.message}</p>
+                <p>Make sure backend is running on http://localhost:8000</p>
+            </div>
+        `;
     }
 }
 
 // Render summary cards
 function renderSummary(summary) {
+    console.log("Summary data received:", summary);
+
     const { total_students, category_counts, at_risk_count, top_10_percent_students } = summary;
-    
-    summaryEl.innerHTML = `
+
+    // Create HTML string
+    const html = `
         <div class="summary-card">
             <h3>Total Students</h3>
             <div class="value">${total_students}</div>
@@ -92,10 +118,18 @@ function renderSummary(summary) {
             <div class="label">Top 10%</div>
         </div>
     `;
+
+    console.log("Generated HTML:", html);
+
+    // Set the HTML
+    summaryEl.innerHTML = html;
+
+    console.log("Element after update:", summaryEl.innerHTML);
 }
 
 // Update student list
 function updateStudentList() {
+    console.log('hey',filteredStudents,studentListEl)
     if (filteredStudents.length === 0) {
         studentListEl.innerHTML = `
             <div class="empty-state">
@@ -104,7 +138,6 @@ function updateStudentList() {
         `;
         return;
     }
-    
     studentListEl.innerHTML = filteredStudents.map(student => `
         <div class="student-card ${student.category.toLowerCase().replace(' ', '-')} ${student.is_at_risk ? 'at-risk' : ''}">
             <div class="student-header">
@@ -144,18 +177,18 @@ function updateTotalCount() {
 // Apply filters
 function applyFilters() {
     let filtered = [...allStudents];
-    
+
     // Apply category filter
     const category = categoryFilter.value;
     if (category) {
         filtered = filtered.filter(student => student.category === category);
     }
-    
+
     // Apply at-risk filter
     if (atRiskFilter.checked) {
         filtered = filtered.filter(student => student.is_at_risk);
     }
-    
+
     filteredStudents = filtered;
     updateStudentList();
     updateTotalCount();
@@ -173,7 +206,7 @@ function resetFilters() {
 // Handle add student form submission
 async function handleAddStudent(e) {
     e.preventDefault();
-    
+
     const studentData = {
         student_id: document.getElementById('studentId').value.trim(),
         name: document.getElementById('studentName').value.trim(),
@@ -187,7 +220,7 @@ async function handleAddStudent(e) {
         midterm_score: parseFloat(document.getElementById('midterm').value),
         final_exam_score: parseFloat(document.getElementById('finalExam').value)
     };
-    
+
     // Validate all fields are filled
     for (const [key, value] of Object.entries(studentData)) {
         if (value === undefined || (typeof value === 'number' && isNaN(value))) {
@@ -195,7 +228,7 @@ async function handleAddStudent(e) {
             return;
         }
     }
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/students`, {
             method: 'POST',
@@ -204,23 +237,23 @@ async function handleAddStudent(e) {
             },
             body: JSON.stringify(studentData)
         });
-        
+
         const result = await response.json();
-        
+
         if (response.ok) {
             showFormMessage('Student added successfully!', 'success');
             addStudentForm.reset();
-            
+
             // Reload data to show new student
             setTimeout(() => {
                 loadData();
                 resetFilters();
             }, 1000);
-            
+
         } else {
             showFormMessage(result.detail || 'Failed to add student', 'error');
         }
-        
+
     } catch (error) {
         showFormMessage('Failed to connect to server', 'error');
         console.error('Error adding student:', error);
@@ -231,7 +264,7 @@ async function handleAddStudent(e) {
 function showFormMessage(message, type) {
     formMessage.textContent = message;
     formMessage.className = `message ${type}`;
-    
+
     setTimeout(() => {
         formMessage.textContent = '';
         formMessage.className = 'message';
@@ -239,18 +272,18 @@ function showFormMessage(message, type) {
 }
 
 // Show loading state
-function showLoading() {
-    studentListEl.innerHTML = `
-        <div class="loading">
-            <p>Loading data...</p>
-        </div>
-    `;
-    summaryEl.innerHTML = `
-        <div class="loading">
-            <p>Loading summary...</p>
-        </div>
-    `;
-}
+// function showLoading() {
+//     studentListEl.innerHTML = `
+//         <div class="loading">
+//             <p>Loading data...</p>
+//         </div>
+//     `;
+//     summaryEl.innerHTML = `
+//         <div class="loading">
+//             <p>Loading summary...</p>
+//         </div>
+//     `;
+// }
 
 // Show error message
 function showError(message) {
