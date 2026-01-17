@@ -66,7 +66,7 @@ h2 {
 }
 
 .summary-card {
-    background: white;
+    background: #ecf6ff;
     padding: 25px;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -362,4 +362,74 @@ footer {
     header h1 {
         font-size: 2rem;
     }
+}
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.students-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.students-table th,
+.students-table td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.students-table th {
+    background: #f5f7fa;
+    font-weight: 600;
+}
+
+.student-id {
+    color: #4f46e5;
+    font-weight: 600;
+}
+
+/* Category badges */
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-excellent {
+    background: #e0f7fa;
+    color: #0288d1;
+}
+
+.badge-good {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.badge-needs-improvement {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+/* Risk styles */
+.text-danger {
+    color: #d32f2f;
+    font-weight: 600;
+}
+
+.text-success {
+    color: #2e7d32;
+    font-weight: 600;
+}
+
+.row-risk {
+    background-color: #fff8f8;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 20px;
+    color: #777;
 }

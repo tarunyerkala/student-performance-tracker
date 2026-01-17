@@ -30,33 +30,28 @@ document.addEventListener('DOMContentLoaded', () => {
 // Load all data
 async function loadData() {
     try {
-        // showLoading();
-
-        // Load students
-        const response = await fetch(`${API_BASE_URL}/students`);
-        if (!response.ok) throw new Error('Failed to fetch students');
+        const response = await fetch(`${API_BASE_URL}/students`, {
+            cache: "no-store"
+        });
 
         allStudents = await response.json();
         filteredStudents = [...allStudents];
-        console.log(filteredStudents)
 
         updateStudentList();
         updateTotalCount();
-
-
-        // Load summary
         await loadSummary();
 
-        // Update display
 
+        document.getElementById("studentId").value = generateNextStudentId();
 
     } catch (error) {
-        showError('Failed to load data. Make sure backend is running on port 8000.');
-        console.error('Error loading data:', error);
+        showError('Failed to load data.');
+        console.error(error);
     }
 }
 
-// Load performance summary
+
+
 // Load performance summary
 async function loadSummary() {
     try {
@@ -129,45 +124,38 @@ function renderSummary(summary) {
 
 // Update student list
 function updateStudentList() {
-    console.log('hey', filteredStudents, studentListEl)
+    totalCountEl.textContent = filteredStudents.length;
+
     if (filteredStudents.length === 0) {
         studentListEl.innerHTML = `
-            <div class="empty-state">
-                <p>No students found matching the filters.</p>
-            </div>
+            <tr>
+                <td colspan="7" class="empty-state">
+                    No students found matching the filters.
+                </td>
+            </tr>
         `;
         return;
     }
+
     studentListEl.innerHTML = filteredStudents.map(student => `
-        <div class="student-card ${student.category.toLowerCase().replace(' ', '-')} ${student.is_at_risk ? 'at-risk' : ''}">
-            <div class="student-header">
-                <div class="student-id">${student.student_id}</div>
-                <div class="category-badge category-${student.category.toLowerCase().replace(' ', '-')}">
+        <tr class="${student.is_at_risk ? 'row-risk' : ''}">
+            <td class="student-id">${student.student_id}</td>
+            <td>${student.name}</td>
+            <td>${student.program}</td>
+            <td>${student.attendance_percentage}%</td>
+            <td>${student.final_score}</td>
+            <td>
+                <span class="badge badge-${student.category.toLowerCase().replace(' ', '-')}">
                     ${student.category}
-                </div>
-            </div>
-            <div class="student-name">${student.name}</div>
-            <div class="student-program">${student.program}</div>
-            
-            <div class="student-metrics">
-                <div class="metric">
-                    <div class="metric-label">Attendance</div>
-                    <div class="metric-value">${student.attendance_percentage}%</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Final Score</div>
-                    <div class="metric-value">${student.final_score}</div>
-                </div>
-            </div>
-            
-            ${student.is_at_risk ? `
-                <div class="at-risk-badge">
-                    ⚠️ At Risk
-                </div>
-            ` : ''}
-        </div>
+                </span>
+            </td>
+            <td class="${student.is_at_risk ? 'text-danger' : 'text-success'}">
+                ${student.is_at_risk ? 'Yes' : 'No'}
+            </td>
+        </tr>
     `).join('');
 }
+
 
 // Update total count
 function updateTotalCount() {
@@ -245,10 +233,10 @@ async function handleAddStudent(e) {
             addStudentForm.reset();
 
             setTimeout(() => {
-                loadData();     // reload table
-                resetFilters(); // reset filters
-            }, 1000);
-        } else {
+                loadData();   // reload + auto-generate new ID
+            }, 300);
+        }
+        else {
             showFormMessage(result.detail || 'Failed to add student', 'error');
         }
 
@@ -292,4 +280,76 @@ function showError(message) {
             <button onclick="loadData()">Retry</button>
         </div>
     `;
+}
+
+function generateNextStudentId() {
+    if (allStudents.length === 0) {
+        return "S001";
+    }
+
+    // Extract numeric part from student IDs
+    const maxId = Math.max(
+        ...allStudents.map(s =>
+            parseInt(s.student_id.replace("S", ""), 10)
+        )
+    );
+
+    const nextId = maxId + 1;
+
+    // Pad with zeros → S001, S012, S123
+    return `S${String(nextId).padStart(3, "0")}`;
+}
+
+
+
+function allowOnlyAlphabet(event) {
+    const char = event.key;
+
+    // Allow letters (A-Z, a-z) and space
+    if (/^[a-zA-Z ]$/.test(char)) {
+        return true;
+    }
+
+    // Allow control keys (Backspace, Delete, Arrow keys)
+    if (
+        event.key === "Backspace" ||
+        event.key === "Delete" ||
+        event.key === "ArrowLeft" ||
+        event.key === "ArrowRight" ||
+        event.key === "Tab"
+    ) {
+        return true;
+    }
+
+    event.preventDefault();
+    return false;
+}
+
+function allowOnlyNumber(event) {
+    const char = event.key;
+    const input = event.target.value;
+
+    // Allow digits
+    if (char >= '0' && char <= '9') {
+        return true;
+    }
+
+    // Allow only ONE decimal point
+    if (char === '.' && !input.includes('.')) {
+        return true;
+    }
+
+    // Allow control keys
+    if (
+        event.key === "Backspace" ||
+        event.key === "Delete" ||
+        event.key === "ArrowLeft" ||
+        event.key === "ArrowRight" ||
+        event.key === "Tab"
+    ) {
+        return true;
+    }
+
+    event.preventDefault();
+    return false;
 }
